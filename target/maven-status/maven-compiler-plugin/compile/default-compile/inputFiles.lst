@@ -1,2 +1,6 @@
 /home/ubuntu/app/src/main/java/com/company/employee/EmployeeApplication.java
+/home/ubuntu/app/src/main/java/com/company/employee/dto/EmployeeDTO.java
 /home/ubuntu/app/src/main/java/com/company/employee/entity/Employee.java
+/home/ubuntu/app/src/main/java/com/company/employee/repository/EmployeeRepository.java
+/home/ubuntu/app/src/main/java/com/company/employee/service/EmployeeService.java
+/home/ubuntu/app/src/main/java/com/company/employee/service/EmployeeServiceImpl.java

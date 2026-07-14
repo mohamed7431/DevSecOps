@@ -1,2 +1,6 @@
 com/company/employee/EmployeeApplication.class
+com/company/employee/service/EmployeeServiceImpl.class
+com/company/employee/repository/EmployeeRepository.class
+com/company/employee/service/EmployeeService.class
+com/company/employee/dto/EmployeeDTO.class
 com/company/employee/entity/Employee.class
