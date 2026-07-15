@@ -32,13 +32,13 @@ pipeline {
                 echo "========== GITLEAKS =========="
 
                 sh '''
-                mkdir -p reports
+                    mkdir -p reports
 
-                gitleaks detect \
-                  --source . \
-                  --report-format sarif \
-                  --report-path reports/gitleaks.sarif \
-                  --exit-code 0
+                    gitleaks detect \
+                        --source . \
+                        --report-format sarif \
+                        --report-path reports/gitleaks.sarif \
+                        --exit-code 0
                 '''
             }
         }
@@ -48,12 +48,22 @@ pipeline {
                 echo "========== SEMGREP =========="
 
                 sh '''
-                mkdir -p reports
+                    mkdir -p reports
 
-                semgrep scan \
-                  --config auto \
-                  --json \
-                  --output reports/semgrep.json .
+                    semgrep scan \
+                        --config auto \
+                        --json \
+                        --output reports/semgrep.json .
+                '''
+            }
+        }
+
+        stage('Maven Build') {
+            steps {
+                echo "========== MAVEN BUILD =========="
+
+                sh '''
+                    mvn clean package -DskipTests
                 '''
             }
         }
@@ -64,24 +74,15 @@ pipeline {
 
                 withSonarQubeEnv('SonarQube') {
 
-                    sh '''
-                    ${SCANNER_HOME}/bin/sonar-scanner \
-                      -Dsonar.projectKey=Employee-App \
-                      -Dsonar.projectName=Employee-App \
-                      -Dsonar.sources=src
-                    '''
+                    sh """
+                        ${SCANNER_HOME}/bin/sonar-scanner \
+                          -Dsonar.projectKey=Employee-App \
+                          -Dsonar.projectName=Employee-App \
+                          -Dsonar.sources=src \
+                          -Dsonar.java.binaries=target/classes
+                    """
 
                 }
-            }
-        }
-
-        stage('Maven Build') {
-            steps {
-                echo "========== MAVEN BUILD =========="
-
-                sh '''
-                mvn clean package -DskipTests
-                '''
             }
         }
 
@@ -90,14 +91,14 @@ pipeline {
                 echo "========== DEPENDENCY CHECK =========="
 
                 sh '''
-                mkdir -p reports
+                    mkdir -p reports
 
-                /opt/dependency-check/bin/dependency-check.sh \
-                  --noupdate \
-                  --project Employee-App \
-                  --scan target \
-                  --format ALL \
-                  --out reports
+                    /opt/dependency-check/bin/dependency-check.sh \
+                        --noupdate \
+                        --project Employee-App \
+                        --scan target \
+                        --format ALL \
+                        --out reports
                 '''
             }
         }
