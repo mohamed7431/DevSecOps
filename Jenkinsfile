@@ -1,65 +1,84 @@
 pipeline {
-
     agent any
 
     tools {
-        jdk 'JDK21'
-        maven 'Maven-3.6.3'
-    }
-
-    options {
-        timestamps()
-        disableConcurrentBuilds()
+        jdk 'JDK'
+        maven 'Maven'
     }
 
     environment {
-        GIT_REPO   = 'https://github.com/mohamed7431/DevSecOps.git'
-        GIT_BRANCH = 'main'
+        SCANNER_HOME = tool 'SonarScanner'
     }
 
     stages {
 
-        stage('Checkout Source') {
+        stage('Checkout') {
             steps {
-                echo '========== CHECKOUT SOURCE =========='
-
-                git branch: "${GIT_BRANCH}",
-                    credentialsId: 'github-token',
-                    url: "${GIT_REPO}"
-
-                sh 'git branch'
-                sh 'git log --oneline -5'
+                git branch: 'main',
+                url: 'https://github.com/mohamed7431/DevSecOps.git',
+                credentialsId: 'github-token'
             }
         }
 
-        stage('Gitleaks Secret Scan') {
+        stage('Gitleaks Scan') {
             steps {
-                echo '========== GITLEAKS SECRET SCAN =========='
-
                 sh '''
-                    mkdir -p reports
+                mkdir -p reports
 
-                    gitleaks detect \
-                      --source . \
-                      --report-format sarif \
-                      --report-path reports/gitleaks.sarif \
-                      --exit-code 0
+                gitleaks detect \
+                  --source . \
+                  --report-format sarif \
+                  --report-path reports/gitleaks.sarif || true
                 '''
             }
         }
 
-        stage('Semgrep SAST Scan') {
+        stage('Semgrep Scan') {
             steps {
-                echo '========== SEMGREP SAST SCAN =========='
-
                 sh '''
-                    semgrep scan \
-                        --config auto \
-                        --json \
-                        --output reports/semgrep.json || true
+                semgrep \
+                  --config auto \
+                  . \
+                  --json \
+                  --output reports/semgrep.json || true
                 '''
             }
         }
+
+        stage('OWASP Dependency Check') {
+            steps {
+                dependencyCheck additionalArguments: '--scan .',
+                                odcInstallation: 'DependencyCheck'
+            }
+        }
+
+        stage('Publish Dependency Report') {
+            steps {
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+
+                    sh """
+                    ${SCANNER_HOME}/bin/sonar-scanner \
+                      -Dsonar.projectKey=employee-app \
+                      -Dsonar.projectName=employee-app \
+                      -Dsonar.sources=src \
+                      -Dsonar.java.binaries=target/classes
+                    """
+                }
+            }
+        }
+
+        stage('Maven Build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
     }
 
     post {
@@ -68,20 +87,17 @@ pipeline {
 
             archiveArtifacts artifacts: 'reports/*', fingerprint: true
 
-            echo 'Security reports archived.'
+            archiveArtifacts artifacts: '**/dependency-check-report.*',
+                             fingerprint: true
 
         }
 
         success {
-
-            echo 'Phase 1 completed successfully.'
-
+            echo 'Phase 2 completed successfully.'
         }
 
         failure {
-
-            echo 'Phase 1 failed.'
-
+            echo 'Phase 2 failed.'
         }
     }
 }
