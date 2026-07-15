@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+
+  postgres:
+
+    image: postgres:16
+
+    container_name: postgres-db
+
+    restart: always
+
+    environment:
+      POSTGRES_DB: employeedb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+    networks:
+      - employee-network
+
+
+  employee-app:
+
+    build: .
+
+    container_name: employee-app
+
+    restart: always
+
+    depends_on:
+      - postgres
+
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/employeedb
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+    ports:
+      - "8081:8081"
+
+    networks:
+      - employee-network
+
+
+networks:
+
+  employee-network:
+
+
+volumes:
+
+  postgres-data:
