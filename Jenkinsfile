@@ -95,6 +95,7 @@ pipeline {
 
                     /opt/dependency-check/bin/dependency-check.sh \
                         --noupdate \
+			--disableOssIndex \
                         --project Employee-App \
                         --scan target \
                         --format ALL \
