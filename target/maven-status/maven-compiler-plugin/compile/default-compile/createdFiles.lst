@@ -1,3 +1,4 @@
+com/company/employee/config/SecurityConfig.class
 com/company/employee/EmployeeApplication.class
 com/company/employee/service/EmployeeServiceImpl.class
 com/company/employee/controller/EmployeeController.class

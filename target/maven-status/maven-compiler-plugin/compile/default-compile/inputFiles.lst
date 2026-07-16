@@ -1,4 +1,5 @@
 /home/ubuntu/app/src/main/java/com/company/employee/EmployeeApplication.java
+/home/ubuntu/app/src/main/java/com/company/employee/config/SecurityConfig.java
 /home/ubuntu/app/src/main/java/com/company/employee/controller/EmployeeController.java
 /home/ubuntu/app/src/main/java/com/company/employee/dto/EmployeeDTO.java
 /home/ubuntu/app/src/main/java/com/company/employee/entity/Employee.java

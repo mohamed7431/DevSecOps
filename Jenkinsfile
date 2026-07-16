@@ -3,29 +3,42 @@ pipeline {
     agent any
 
     environment {
+
         SONAR_HOME = tool 'SonarScanner'
+
         IMAGE_NAME = "mohamed7431/employee-app"
+
         IMAGE_TAG = "${BUILD_NUMBER}"
+
+        NAMESPACE = "employee-dev"
     }
 
     stages {
 
         stage('Checkout') {
+
             steps {
+
                 echo "========== CHECKOUT =========="
+
                 checkout scm
             }
         }
 
         stage('Build') {
+
             steps {
+
                 echo "========== MAVEN BUILD =========="
+
                 sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('SonarQube Analysis') {
+
             steps {
+
                 echo "========== SONARQUBE =========="
 
                 withSonarQubeEnv('SonarQube') {
@@ -42,6 +55,7 @@ pipeline {
         }
 
         stage('OWASP Dependency Check') {
+
             steps {
 
                 echo "========== DEPENDENCY CHECK =========="
@@ -61,6 +75,7 @@ pipeline {
         }
 
         stage('Build Docker Image') {
+
             steps {
 
                 echo "========== BUILD DOCKER IMAGE =========="
@@ -74,19 +89,20 @@ pipeline {
         }
 
         stage('Trivy Image Scan') {
+
             steps {
 
                 echo "========== TRIVY IMAGE SCAN =========="
 
-                sh '''
+                sh """
                     mkdir -p reports
 
                     trivy image \
-                        --severity HIGH,CRITICAL \
-                        --format table \
-                        --output reports/trivy-report.txt \
-                        ${IMAGE_NAME}:${IMAGE_TAG}
-                '''
+                    --severity HIGH,CRITICAL \
+                    --format table \
+                    --output reports/trivy-report.txt \
+                    ${IMAGE_NAME}:${IMAGE_TAG}
+                """
             }
         }
 
@@ -103,14 +119,34 @@ pipeline {
                 )]) {
 
                     sh '''
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        echo "$DOCKER_PASS" | docker login \
+                        -u "$DOCKER_USER" \
+                        --password-stdin
 
                         docker push ${IMAGE_NAME}:${IMAGE_TAG}
+
                         docker push ${IMAGE_NAME}:latest
 
                         docker logout
                     '''
                 }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+
+            steps {
+
+                echo "========== DEPLOY TO KUBERNETES =========="
+
+                sh """
+                    kubectl set image deployment/employee-app \
+                    employee-app=${IMAGE_NAME}:${IMAGE_TAG} \
+                    -n ${NAMESPACE}
+
+                    kubectl rollout status deployment/employee-app \
+                    -n ${NAMESPACE}
+                """
             }
         }
 
@@ -120,22 +156,19 @@ pipeline {
 
         always {
 
-            echo "========== ARCHIVING REPORTS =========="
-
             archiveArtifacts artifacts: 'reports/**/*', fingerprint: true
 
             archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-
         }
 
         success {
-            echo "========== PHASE 3 SUCCESS =========="
+
+            echo "========== PIPELINE SUCCESS =========="
         }
 
         failure {
-            echo "========== PHASE 3 FAILED =========="
+
+            echo "========== PIPELINE FAILED =========="
         }
-
     }
-
 }

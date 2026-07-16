@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: employee-app
+  namespace: employee-dev
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: employee-app
+
+  template:
+    metadata:
+      labels:
+        app: employee-app
+
+    spec:
+      containers:
+      - name: employee-app
+        image: mohamed7431/employee-app:v3
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 8081
+
+        env:
+        - name: DB_URL
+          valueFrom:
+            configMapKeyRef:
+              name: employee-config
+              key: DB_URL
+
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: employee-secret
+              key: DB_USERNAME
+
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: employee-secret
+              key: DB_PASSWORD
