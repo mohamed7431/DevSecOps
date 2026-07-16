@@ -1,70 +1,26 @@
 pipeline {
+
     agent any
 
-    tools {
-        jdk 'JDK21'
-        maven 'Maven-3.6.3'
-    }
-
     environment {
-        SCANNER_HOME = tool 'SonarScanner'
-    }
-
-    options {
-        timestamps()
+        SONAR_HOME = tool 'SonarQube'
+        IMAGE_NAME = "mohamed7431/employee-app"
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
 
-        stage('Checkout Source') {
+        stage('Checkout') {
             steps {
                 echo "========== CHECKOUT =========="
-
-                git branch: 'main',
-                    url: 'https://github.com/mohamed7431/DevSecOps.git'
-
-                sh 'git log --oneline -5'
+                checkout scm
             }
         }
 
-        stage('Gitleaks Secret Scan') {
-            steps {
-                echo "========== GITLEAKS =========="
-
-                sh '''
-                    mkdir -p reports
-
-                    gitleaks detect \
-                        --source . \
-                        --report-format sarif \
-                        --report-path reports/gitleaks.sarif \
-                        --exit-code 0
-                '''
-            }
-        }
-
-        stage('Semgrep SAST Scan') {
-            steps {
-                echo "========== SEMGREP =========="
-
-                sh '''
-                    mkdir -p reports
-
-                    semgrep scan \
-                        --config auto \
-                        --json \
-                        --output reports/semgrep.json .
-                '''
-            }
-        }
-
-        stage('Maven Build') {
+        stage('Build') {
             steps {
                 echo "========== MAVEN BUILD =========="
-
-                sh '''
-                    mvn clean package -DskipTests
-                '''
+                sh 'mvn clean package -DskipTests'
             }
         }
 
@@ -75,19 +31,19 @@ pipeline {
                 withSonarQubeEnv('SonarQube') {
 
                     sh """
-                        ${SCANNER_HOME}/bin/sonar-scanner \
-                          -Dsonar.projectKey=Employee-App \
-                          -Dsonar.projectName=Employee-App \
-                          -Dsonar.sources=src \
-                          -Dsonar.java.binaries=target/classes
+                        ${SONAR_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectKey=Employee-App \
+                        -Dsonar.projectName=Employee-App \
+                        -Dsonar.sources=src \
+                        -Dsonar.java.binaries=target/classes
                     """
-
                 }
             }
         }
 
         stage('OWASP Dependency Check') {
             steps {
+
                 echo "========== DEPENDENCY CHECK =========="
 
                 sh '''
@@ -95,12 +51,66 @@ pipeline {
 
                     /opt/dependency-check/bin/dependency-check.sh \
                         --noupdate \
-			--disableOssIndex \
+                        --disableOssIndex \
                         --project Employee-App \
                         --scan target \
                         --format ALL \
                         --out reports
                 '''
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+
+                echo "========== BUILD DOCKER IMAGE =========="
+
+                sh """
+                    docker build \
+                    -t ${IMAGE_NAME}:${IMAGE_TAG} \
+                    -t ${IMAGE_NAME}:latest .
+                """
+            }
+        }
+
+        stage('Trivy Image Scan') {
+            steps {
+
+                echo "========== TRIVY IMAGE SCAN =========="
+
+                sh '''
+                    mkdir -p reports
+
+                    trivy image \
+                        --severity HIGH,CRITICAL \
+                        --format table \
+                        --output reports/trivy-report.txt \
+                        ${IMAGE_NAME}:${IMAGE_TAG}
+                '''
+            }
+        }
+
+        stage('Push Docker Image') {
+
+            steps {
+
+                echo "========== PUSH TO DOCKER HUB =========="
+
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-Creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+
+                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                        docker push ${IMAGE_NAME}:latest
+
+                        docker logout
+                    '''
+                }
             }
         }
 
@@ -119,11 +129,13 @@ pipeline {
         }
 
         success {
-            echo "========== PHASE 2 SUCCESS =========="
+            echo "========== PHASE 3 SUCCESS =========="
         }
 
         failure {
-            echo "========== PHASE 2 FAILED =========="
+            echo "========== PHASE 3 FAILED =========="
         }
+
     }
+
 }
