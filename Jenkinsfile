@@ -3,7 +3,7 @@ pipeline {
     agent any
 
     environment {
-        SONAR_HOME = tool 'SonarQube'
+        SONAR_HOME = tool 'SonarScanner'
         IMAGE_NAME = "mohamed7431/employee-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
