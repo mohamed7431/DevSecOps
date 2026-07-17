@@ -10,7 +10,7 @@ pipeline {
 
         IMAGE_TAG = "${BUILD_NUMBER}"
 
-        NAMESPACE = "employee-dev"
+        GIT_REPO = "https://github.com/mohamed7431/DevSecOps.git"
     }
 
     stages {
@@ -18,8 +18,6 @@ pipeline {
         stage('Checkout') {
 
             steps {
-
-                echo "========== CHECKOUT =========="
 
                 checkout scm
             }
@@ -29,8 +27,6 @@ pipeline {
 
             steps {
 
-                echo "========== MAVEN BUILD =========="
-
                 sh 'mvn clean package -DskipTests'
             }
         }
@@ -39,37 +35,33 @@ pipeline {
 
             steps {
 
-                echo "========== SONARQUBE =========="
-
                 withSonarQubeEnv('SonarQube') {
 
                     sh """
-                        ${SONAR_HOME}/bin/sonar-scanner \
-                        -Dsonar.projectKey=Employee-App \
-                        -Dsonar.projectName=Employee-App \
-                        -Dsonar.sources=src \
-                        -Dsonar.java.binaries=target/classes
+                    ${SONAR_HOME}/bin/sonar-scanner \
+                    -Dsonar.projectKey=Employee-App \
+                    -Dsonar.projectName=Employee-App \
+                    -Dsonar.sources=src \
+                    -Dsonar.java.binaries=target/classes
                     """
                 }
             }
         }
 
-        stage('OWASP Dependency Check') {
+        stage('Dependency Check') {
 
             steps {
 
-                echo "========== DEPENDENCY CHECK =========="
-
                 sh '''
-                    mkdir -p reports
+                mkdir -p reports
 
-                    /opt/dependency-check/bin/dependency-check.sh \
-                        --noupdate \
-                        --disableOssIndex \
-                        --project Employee-App \
-                        --scan target \
-                        --format ALL \
-                        --out reports
+                /opt/dependency-check/bin/dependency-check.sh \
+                --noupdate \
+                --disableOssIndex \
+                --project Employee-App \
+                --scan target \
+                --format ALL \
+                --out reports
                 '''
             }
         }
@@ -78,30 +70,26 @@ pipeline {
 
             steps {
 
-                echo "========== BUILD DOCKER IMAGE =========="
-
                 sh """
-                    docker build \
-                    -t ${IMAGE_NAME}:${IMAGE_TAG} \
-                    -t ${IMAGE_NAME}:latest .
+                docker build \
+                -t ${IMAGE_NAME}:${IMAGE_TAG} \
+                -t ${IMAGE_NAME}:latest .
                 """
             }
         }
 
-        stage('Trivy Image Scan') {
+        stage('Trivy Scan') {
 
             steps {
 
-                echo "========== TRIVY IMAGE SCAN =========="
-
                 sh """
-                    mkdir -p reports
+                mkdir -p reports
 
-                    trivy image \
-                    --severity HIGH,CRITICAL \
-                    --format table \
-                    --output reports/trivy-report.txt \
-                    ${IMAGE_NAME}:${IMAGE_TAG}
+                trivy image \
+                --severity HIGH,CRITICAL \
+                --format table \
+                --output reports/trivy-report.txt \
+                ${IMAGE_NAME}:${IMAGE_TAG}
                 """
             }
         }
@@ -110,8 +98,6 @@ pipeline {
 
             steps {
 
-                echo "========== PUSH TO DOCKER HUB =========="
-
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-Creds',
                     usernameVariable: 'DOCKER_USER',
@@ -119,34 +105,59 @@ pipeline {
                 )]) {
 
                     sh '''
-                        echo "$DOCKER_PASS" | docker login \
-                        -u "$DOCKER_USER" \
-                        --password-stdin
 
-                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                    echo "$DOCKER_PASS" | docker login \
+                    -u "$DOCKER_USER" \
+                    --password-stdin
 
-                        docker push ${IMAGE_NAME}:latest
+                    docker push ${IMAGE_NAME}:${IMAGE_TAG}
 
-                        docker logout
+                    docker push ${IMAGE_NAME}:latest
+
+                    docker logout
+
                     '''
                 }
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Update Kubernetes Manifest') {
 
             steps {
 
-                echo "========== DEPLOY TO KUBERNETES =========="
-
                 sh """
-                    kubectl set image deployment/employee-app \
-                    employee-app=${IMAGE_NAME}:${IMAGE_TAG} \
-                    -n ${NAMESPACE}
 
-                    kubectl rollout status deployment/employee-app \
-                    -n ${NAMESPACE}
+                sed -i 's#image: .*#image: ${IMAGE_NAME}:${IMAGE_TAG}#' \
+                k8s/employee-deployment.yaml
+
                 """
+            }
+        }
+
+        stage('Commit and Push') {
+
+            steps {
+
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-token',
+                    usernameVariable: 'GIT_USER',
+                    passwordVariable: 'GIT_TOKEN'
+                )]) {
+
+                    sh """
+
+                    git config user.name "Jenkins"
+
+                    git config user.email "jenkins@local"
+
+                    git add k8s/employee-deployment.yaml
+
+                    git commit -m "Deploy image ${IMAGE_TAG}" || true
+
+                    git push https://${GIT_USER}:${GIT_TOKEN}@github.com/mohamed7431/DevSecOps.git HEAD:main
+
+                    """
+                }
             }
         }
 
@@ -163,12 +174,12 @@ pipeline {
 
         success {
 
-            echo "========== PIPELINE SUCCESS =========="
+            echo "PIPELINE SUCCESS"
         }
 
         failure {
 
-            echo "========== PIPELINE FAILED =========="
+            echo "PIPELINE FAILED"
         }
     }
 }
