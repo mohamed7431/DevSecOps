@@ -20,7 +20,8 @@ spec:
     spec:
       containers:
       - name: employee-app
-        image: mohamed7431/employee-app:v3
+
+        image: mohamed7431/employee-app:latest
         imagePullPolicy: Always
 
         ports:
