@@ -154,7 +154,7 @@ pipeline {
 
                     git commit -m "Deploy image ${IMAGE_TAG}" || true
 
-                    git push https://${GIT_USER}:${GIT_TOKEN}@github.com/mohamed7431/DevSecOps.git HEAD:main
+                    git push https://${GIT_USER}:${GIT_CREDS}@github.com/mohamed7431/DevSecOps.git HEAD:main
 
                     """
                 }
