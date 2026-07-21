@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Employee Management Dashboard</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">E</div>
+            <div>
+                <h2>EmployeeHub</h2>
+                <span>Management System</span>
+            </div>
+        </div>
+
+        <nav class="navigation">
+
+            <a href="#" class="nav-item active">
+                <span>📊</span>
+                Dashboard
+            </a>
+
+            <a href="#employees" class="nav-item">
+                <span>👥</span>
+                Employees
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="status-dot"></span>
+            System Online
+        </div>
+
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Top Bar -->
+        <header class="topbar">
+
+            <div>
+                <h1>Dashboard</h1>
+                <p>Welcome to your Employee Management System</p>
+            </div>
+
+            <div class="user-profile">
+
+                <div class="user-avatar">
+                    A
+                </div>
+
+                <div class="user-info">
+                    <strong>Admin</strong>
+                    <span>Administrator</span>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- Statistics -->
+        <section class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-icon blue">
+                    👥
+                </div>
+
+                <div>
+                    <span>Total Employees</span>
+                    <h2 id="totalEmployees">0</h2>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon green">
+                    💼
+                </div>
+
+                <div>
+                    <span>Departments</span>
+                    <h2 id="totalDepartments">0</h2>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon orange">
+                    💰
+                </div>
+
+                <div>
+                    <span>Total Salary</span>
+                    <h2 id="totalSalary">₹0</h2>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon purple">
+                    📈
+                </div>
+
+                <div>
+                    <span>Average Salary</span>
+                    <h2 id="averageSalary">₹0</h2>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Employee Table -->
+        <section class="content-card" id="employees">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Employee Directory</h2>
+                    <p>Manage and view employee information</p>
+                </div>
+
+                <button class="refresh-btn" onclick="loadEmployees()">
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+
+            <div id="loading" class="loading">
+                Loading employees...
+            </div>
+
+
+            <div id="error" class="error-message">
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Employee</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Salary</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="employeeTableBody">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- Footer -->
+        <footer>
+
+            <span>EmployeeHub Dashboard</span>
+
+            <span>
+                DevOps Project • Spring Boot • Kubernetes
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script src="/js/dashboard.js"></script>
+
+</body>
+</html>

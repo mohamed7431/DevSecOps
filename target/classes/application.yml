@@ -19,6 +19,13 @@ spring:
       hibernate:
         format_sql: true
 
+logging:
+  level:
+    root: INFO
+    org.springframework.security: TRACE
+    org.springframework.security.web: TRACE
+    org.springframework.security.authentication: TRACE
+
 management:
   endpoints:
     web:
