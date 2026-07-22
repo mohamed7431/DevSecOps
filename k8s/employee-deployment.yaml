@@ -21,7 +21,7 @@ spec:
       containers:
       - name: employee-app
 
-        image: mohamed7431/employee-app:36
+        image: mohamed7431/employee-app:37
         imagePullPolicy: Always
 
         ports:
