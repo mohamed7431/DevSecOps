@@ -4,58 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Employee Management Dashboard</title>
+    <title>EmployeeHub - Management System</title>
 
     <link rel="stylesheet" href="/css/dashboard.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
 <div class="app-container">
 
-    <!-- Sidebar -->
+    <!-- ================= SIDEBAR ================= -->
+
     <aside class="sidebar">
 
         <div class="logo">
-            <div class="logo-icon">E</div>
+
+            <div class="logo-icon">
+                E
+            </div>
+
             <div>
                 <h2>EmployeeHub</h2>
                 <span>Management System</span>
             </div>
+
         </div>
+
 
         <nav class="navigation">
 
-            <a href="#" class="nav-item active">
+            <a href="#dashboard"
+               class="nav-item active"
+               onclick="showSection('dashboard', this)">
+
                 <span>📊</span>
+
                 Dashboard
+
             </a>
 
-            <a href="#employees" class="nav-item">
+
+            <a href="#employees"
+               class="nav-item"
+               onclick="showSection('employees', this)">
+
                 <span>👥</span>
+
                 Employees
+
             </a>
 
         </nav>
 
+
         <div class="sidebar-footer">
+
             <span class="status-dot"></span>
+
             System Online
+
         </div>
 
     </aside>
 
 
-    <!-- Main Content -->
+    <!-- ================= MAIN CONTENT ================= -->
+
     <main class="main-content">
 
-        <!-- Top Bar -->
+
+        <!-- ================= TOP BAR ================= -->
+
         <header class="topbar">
 
             <div>
-                <h1>Dashboard</h1>
-                <p>Welcome to your Employee Management System</p>
+
+                <h1 id="pageTitle">
+                    Dashboard
+                </h1>
+
+                <p id="pageSubtitle">
+                    Welcome to your Employee Management System
+                </p>
+
             </div>
+
 
             <div class="user-profile">
 
@@ -64,8 +100,15 @@
                 </div>
 
                 <div class="user-info">
-                    <strong>Admin</strong>
-                    <span>Administrator</span>
+
+                    <strong>
+                        Admin
+                    </strong>
+
+                    <span>
+                        Administrator
+                    </span>
+
                 </div>
 
             </div>
@@ -73,124 +116,376 @@
         </header>
 
 
-        <!-- Statistics -->
-        <section class="stats-grid">
 
-            <div class="stat-card">
+        <!-- ================================================= -->
+        <!-- ================= DASHBOARD ===================== -->
+        <!-- ================================================= -->
 
-                <div class="stat-icon blue">
-                    👥
+        <section id="dashboardSection">
+
+
+            <!-- ================= STATISTICS ================= -->
+
+            <section class="stats-grid">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon blue">
+                        👥
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Total Employees
+                        </span>
+
+                        <h2 id="totalEmployees">
+                            0
+                        </h2>
+
+                    </div>
+
                 </div>
 
-                <div>
-                    <span>Total Employees</span>
-                    <h2 id="totalEmployees">0</h2>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon green">
+                        💼
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Departments
+                        </span>
+
+                        <h2 id="totalDepartments">
+                            0
+                        </h2>
+
+                    </div>
+
                 </div>
 
-            </div>
 
 
-            <div class="stat-card">
+                <div class="stat-card">
 
-                <div class="stat-icon green">
-                    💼
+                    <div class="stat-icon orange">
+                        💰
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Total Salary
+                        </span>
+
+                        <h2 id="totalSalary">
+                            ₹0
+                        </h2>
+
+                    </div>
+
                 </div>
 
-                <div>
-                    <span>Departments</span>
-                    <h2 id="totalDepartments">0</h2>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon purple">
+                        📈
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Average Salary
+                        </span>
+
+                        <h2 id="averageSalary">
+                            ₹0
+                        </h2>
+
+                    </div>
+
                 </div>
 
-            </div>
+            </section>
 
 
-            <div class="stat-card">
 
-                <div class="stat-icon orange">
-                    💰
+            <!-- ================= CHARTS ================= -->
+
+            <section class="charts-grid">
+
+
+                <div class="content-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>
+                                Salary by Department
+                            </h2>
+
+                            <p>
+                                Total salary distribution
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="chart-container">
+
+                        <canvas id="salaryChart"></canvas>
+
+                    </div>
+
                 </div>
 
-                <div>
-                    <span>Total Salary</span>
-                    <h2 id="totalSalary">₹0</h2>
+
+
+                <div class="content-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>
+                                Employees by Department
+                            </h2>
+
+                            <p>
+                                Workforce distribution
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="chart-container">
+
+                        <canvas id="departmentChart"></canvas>
+
+                    </div>
+
                 </div>
 
-            </div>
+
+            </section>
 
 
-            <div class="stat-card">
 
-                <div class="stat-icon purple">
-                    📈
+            <!-- ================= RECENT EMPLOYEES ================= -->
+
+            <section class="content-card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Recent Employees
+                        </h2>
+
+                        <p>
+                            Latest employee records
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        class="refresh-btn"
+                        onclick="loadEmployees()">
+
+                        ↻ Refresh
+
+                    </button>
+
                 </div>
 
-                <div>
-                    <span>Average Salary</span>
-                    <h2 id="averageSalary">₹0</h2>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>ID</th>
+
+                                <th>Employee</th>
+
+                                <th>Email</th>
+
+                                <th>Department</th>
+
+                                <th>Salary</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="dashboardTableBody">
+
+                        </tbody>
+
+                    </table>
+
                 </div>
 
-            </div>
+            </section>
 
         </section>
 
 
-        <!-- Employee Table -->
-        <section class="content-card" id="employees">
 
-            <div class="card-header">
+        <!-- ================================================= -->
+        <!-- ================= EMPLOYEES ===================== -->
+        <!-- ================================================= -->
 
-                <div>
-                    <h2>Employee Directory</h2>
-                    <p>Manage and view employee information</p>
+        <section
+            id="employeesSection"
+            style="display:none;"
+        >
+
+
+            <section class="content-card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Employee Directory
+                        </h2>
+
+                        <p>
+                            Search and manage employee information
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        class="add-btn"
+                        onclick="openAddEmployeeModal()">
+
+                        + Add Employee
+
+                    </button>
+
                 </div>
 
-                <button class="refresh-btn" onclick="loadEmployees()">
-                    ↻ Refresh
-                </button>
-
-            </div>
 
 
-            <div id="loading" class="loading">
-                Loading employees...
-            </div>
+                <!-- ================= SEARCH ================= -->
+
+                <div class="filter-bar">
 
 
-            <div id="error" class="error-message">
-            </div>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="🔍 Search employee..."
+                        onkeyup="filterEmployees()"
+                    >
 
 
-            <div class="table-container">
+                    <select
+                        id="departmentFilter"
+                        onchange="filterEmployees()"
+                    >
 
-                <table>
+                        <option value="">
+                            All Departments
+                        </option>
 
-                    <thead>
+                    </select>
 
-                        <tr>
-                            <th>ID</th>
-                            <th>Employee</th>
-                            <th>Email</th>
-                            <th>Department</th>
-                            <th>Salary</th>
-                        </tr>
 
-                    </thead>
+                    <button
+                        class="refresh-btn"
+                        onclick="loadEmployees()">
 
-                    <tbody id="employeeTableBody">
+                        ↻ Refresh
 
-                    </tbody>
+                    </button>
 
-                </table>
+                </div>
 
-            </div>
+
+
+                <!-- ================= ERROR ================= -->
+
+                <div
+                    id="error"
+                    class="error-message"
+                >
+                </div>
+
+
+
+                <!-- ================= TABLE ================= -->
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>ID</th>
+
+                                <th>Employee</th>
+
+                                <th>Email</th>
+
+                                <th>Department</th>
+
+                                <th>Salary</th>
+
+                                <th>Actions</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="employeeTableBody">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
 
         </section>
 
 
-        <!-- Footer -->
+
+        <!-- ================= FOOTER ================= -->
+
         <footer>
 
-            <span>EmployeeHub Dashboard</span>
+            <span>
+                EmployeeHub Dashboard
+            </span>
 
             <span>
                 DevOps Project • Spring Boot • Kubernetes
@@ -198,12 +493,111 @@
 
         </footer>
 
+
     </main>
 
 </div>
 
 
+
+<!-- ================================================= -->
+<!-- ================= ADD EMPLOYEE MODAL ============= -->
+<!-- ================================================= -->
+
+<div
+    id="employeeModal"
+    class="modal"
+    style="display:none;"
+>
+
+
+    <div class="modal-content">
+
+
+        <div class="modal-header">
+
+            <h2>
+                Add Employee
+            </h2>
+
+            <span
+                class="close"
+                onclick="closeEmployeeModal()">
+
+                ×
+
+            </span>
+
+        </div>
+
+
+
+        <form
+            id="employeeForm"
+            onsubmit="addEmployee(event)"
+        >
+
+
+            <input
+                type="text"
+                id="firstName"
+                placeholder="First Name"
+                required
+            >
+
+
+            <input
+                type="text"
+                id="lastName"
+                placeholder="Last Name"
+                required
+            >
+
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Email"
+                required
+            >
+
+
+            <input
+                type="text"
+                id="department"
+                placeholder="Department"
+                required
+            >
+
+
+            <input
+                type="number"
+                id="salary"
+                placeholder="Salary"
+                required
+            >
+
+
+            <button
+                type="submit"
+                class="add-btn"
+            >
+
+                Save Employee
+
+            </button>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
 <script src="/js/dashboard.js"></script>
 
 </body>
+
 </html>
