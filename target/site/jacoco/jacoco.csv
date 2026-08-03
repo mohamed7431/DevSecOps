@@ -1,0 +1,7 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Employee Management,com.company.employee.entity,Employee,66,0,0,0,28,0,14,0,14,0
+Employee Management,com.company.employee,EmployeeApplication,8,0,0,0,3,0,2,0,2,0
+Employee Management,com.company.employee.dto,EmployeeDTO,56,0,0,0,24,0,12,0,12,0
+Employee Management,com.company.employee.config,SecurityConfig,0,52,0,0,0,13,0,4,0,4
+Employee Management,com.company.employee.service,EmployeeServiceImpl,92,0,0,0,23,0,7,0,7,0
+Employee Management,com.company.employee.controller,EmployeeController,42,0,0,0,11,0,6,0,6,0
